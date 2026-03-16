@@ -1,0 +1,40 @@
+configfile: "/usr/data/archanand/lwang/snakemake/qc_smk/config/config.yaml"
+
+# config variables
+INPUT_DIR = config["work_dir"]
+RESULTS_DIR = config["results_dir"]
+QC_ENV = "envs/qc.yaml"
+
+wildcards = glob_wildcards(INPUT_DIR + "{sample}.fastq.gz")
+SAMPLES = wildcards.sample
+
+rule all:
+    input:
+        RESULTS_DIR + "multiqc_report.html"
+
+rule fastqc_1:
+    input: 
+        INPUT_DIR + "{sample}.fastq.gz"
+    output: 
+        RESULTS_DIR + "{sample}_fastqc.html", 
+        RESULTS_DIR + "{sample}_fastqc.zip"
+    conda: 
+        QC_ENV
+    log: 
+        RESULTS_DIR + "{sample}_fastqc.log"
+    shell: 
+        "echo 'Running {input}' &> {log} \n"
+        "fastqc {input} -o " + RESULTS_DIR + " &>> {log}"
+
+rule multiqc_1:
+    input:
+        expand(RESULTS_DIR + "{sample}_fastqc.zip", sample=SAMPLES)
+    output:
+        RESULTS_DIR + "multiqc_report_1.html"
+    conda: 
+        QC_ENV
+    log:
+        RESULTS_DIR + "multiqc.log" 
+    shell:
+        "echo 'Running {input}' &> {log} \n"
+        "multiqc " + RESULTS_DIR + " -o " + RESULTS_DIR + " &>> {log}"

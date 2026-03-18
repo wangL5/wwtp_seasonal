@@ -1,7 +1,9 @@
-configfile: "/usr/data/archanand/lwang/snakemake/qc_smk/config/config.yaml"
+# snakefile combining fastqc and multiqc as part of the initial qc process 
+
+configfile: "config/config.yaml"
 
 # config variables
-INPUT_DIR = config["work_dir"]
+INPUT_DIR = config["sample_dir"]
 RESULTS_DIR = config["results_dir"]
 QC_ENV = "envs/qc.yaml"
 
@@ -12,7 +14,7 @@ rule all:
     input:
         RESULTS_DIR + "multiqc_report.html"
 
-rule fastqc_1:
+rule fastqc:
     input: 
         INPUT_DIR + "{sample}.fastq.gz"
     output: 
@@ -26,11 +28,11 @@ rule fastqc_1:
         "echo 'Running {input}' &> {log} \n"
         "fastqc {input} -o " + RESULTS_DIR + " &>> {log}"
 
-rule multiqc_1:
+rule multiqc:
     input:
         expand(RESULTS_DIR + "{sample}_fastqc.zip", sample=SAMPLES)
     output:
-        RESULTS_DIR + "multiqc_report_1.html"
+        RESULTS_DIR + "multiqc_report.html"
     conda: 
         QC_ENV
     log:

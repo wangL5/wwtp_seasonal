@@ -1,0 +1,7 @@
+# rule host removal 
+# input: post fastp files 
+# output: host-removed reads (after human reads removed)
+# rule assembly: 
+# input: post bbsplit/bbmap 
+# output: assemblies! 
+#  

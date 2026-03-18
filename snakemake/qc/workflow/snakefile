@@ -1,0 +1,93 @@
+# snakemake workflow for trimming
+# fastp --> host removal --> fastqc --> multiqc 
+# edit config file to configure to your needs 
+
+configfile: "config/config.yaml"
+
+# input paths 
+INPUT_DIR = config["sample_dir"]
+HOST_GENOME=config["host_genome"]
+
+# envs 
+QC_ENV = "envs/qc.yaml"
+BBMAP_ENV ="envs/bbmap.yaml"
+
+# output paths 
+FASTP_DIR = config["fastp_dir"]
+BBMAP_DIR = config["bbmap_dir"]
+FASTQC_DIR = config["fastqc_dir"]
+
+# fastp parameters 
+fastp_q = config["fastp_q"]
+fastp_u = config["fastp_u"]
+# trim-poly-g tail is on 
+
+wildcards = glob_wildcards(INPUT_DIR + "{sample}_R1_001.fastq.gz")
+SAMPLES = wildcards.sample
+
+
+rule all:
+    input:
+        FASTQC_DIR + "multiqc_report.html"
+
+rule fastp: 
+    input:
+        i = INPUT_DIR + "{sample}_R1_001.fastq.gz",
+        I = INPUT_DIR + "{sample}_R2_001.fastq.gz"
+    output:
+        o = FASTP_DIR + "{sample}_R1_001.fastp.fastq.gz",
+        O = FASTP_DIR + "{sample}_R2_001.fastp.fastq.gz"
+    conda:
+        QC_ENV
+    params:
+        q: fastp_q,
+        u: fastp_u
+    log:
+        FASTP_DIR + "{sample}_fastp.log"
+    shell:
+        "fastp -i {input.i} -I {input.I} -o {output.o} -O {output.O} -q {params.q} -u {params.u} --trim_poly_g &> {log}"
+
+rule bbmap: 
+    input:
+        in1 = FASTP_DIR + "{sample}_R1_001.fastp.fastq.gz",
+        in2 = FASTP_DIR + "{sample}_R2_001.fastp.fastq.gz"
+    output:
+        outu1 = BBMAP_DIR + "{sample}_R1_001.fastp.bbmap.fastq.gz",
+        outu2 = BBMAP_DIR + "{sample}_R2_001.fastp.bbmap.fastq.gz"
+    conda:
+        BBMAP_ENV
+    params:
+        host = HOST_GENOME
+    log:
+        BBMAP_DIR + "{sample}.bbmap.log"
+    shell: 
+        "bbmap.sh in1={input.in1} in2={input.in2} outu1={output.outu1} outu2={output.outu2} path={params.host} &> {log}"
+
+rule fastqc:
+    input: 
+        r1 = BBMAP_DIR + "{sample}_R1_001.fastp.bbmap.fastq.gz",
+        r2 = BBMAP_DIR + "{sample}_R2_001.fastp.bbmap.fastq.gz"
+    output: 
+        out1 = FASTQC_DIR + "{sample}_R1_001.fastp.bbmap_fastqc.html", 
+        out2 = FASTQC_DIR + "{sample}_R1_001.fastp.bbmap_fastqc.zip",
+        out3 = FASTQC_DIR + "{sample}_R2_001.fastp.bbmap_fastqc.html", 
+        out4 = FASTQC_DIR + "{sample}_R2_001.fastp.bbmap_fastqc.zip"
+    conda: 
+        QC_ENV
+    log: 
+        FASTQC_DIR + "{sample}_fastqc.log"  # one log is fine, fastqc will write both reports to this log
+    shell: 
+        "fastqc {input.r1} {input.r2} -o " + FASTQC_DIR + " &> {log}"
+
+rule multiqc:
+    input:
+        expand(FASTQC_DIR + "{sample}_R1_001.fastp.bbmap_fastqc.zip", sample=SAMPLES), 
+        expand(FASTQC_DIR + "{sample}_R2_001.fastp.bbmap_fastqc.zip", sample=SAMPLES)
+    output:
+        FASTQC_DIR + "multiqc_report.html"
+    conda: 
+        QC_ENV
+    log:
+        FASTQC_DIR + "multiqc.log" 
+    shell:
+        "multiqc " + FASTQC_DIR + " -o " + FASTQC_DIR + " &> {log}"

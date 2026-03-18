@@ -1,0 +1,9 @@
+name: qc
+channels:
+  - bioconda
+dependencies:
+  - fastp
+  - fastqc
+  - multiqc
+
+prefix: "/home/910904506/mamba/envs/qc"

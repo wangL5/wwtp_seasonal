@@ -1,0 +1,12 @@
+# input directories
+sample_dir: /home/910904506/lwang/ww_seasonality_metagenomes/nmdc_downloads/ 
+host_genome: /usr/data/archanand/tools/human_genome/
+
+# output directories 
+fastp_dir: /usr/data/archanand/lwang/snakemake/qc/results/nmdc_downloads/fastp/
+bbmap_dir: /usr/data/archanand/lwang/snakemake/qc/results/nmdc_downloads/bbmap/
+fastqc_dir: /usr/data/archanand/lwang/snakemake/qc/results/nmdc_downloads/fastqc/
+
+# fastp parameters 
+fastp_q: 20 
+fastp_u: 20

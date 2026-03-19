@@ -1,7 +1,33 @@
-# rule host removal 
-# input: post fastp files 
-# output: host-removed reads (after human reads removed)
-# rule assembly: 
-# input: post bbsplit/bbmap 
-# output: assemblies! 
-#  
+# snakemake workflow for metagenome assembly and MAG binning 
+# edit config file to configure to your needs 
+
+configfile: "config/config.yaml"
+
+# input paths 
+BBMAP_DIR = config["bbmap_dir"]
+
+# output paths 
+ASSEMBLY_DIR = config["assembly_dir"]
+
+# envs
+MEGAHIT_ENV = config["megahit_env"]
+
+rule megahit: 
+    input: 
+        r1 = BBMAP_DIR + "{sample}_R1_001.fastp.bbmap.fastq.gz",
+        r2 = BBMAP_DIR + "{sample}_R2_001.fastp.bbmap.fastq.gz"
+    output: 
+        ASSEMBLY_DIR + "{sample}/final.contigs.fa"
+    env:
+        MEGAHIT_ENV
+    log: 
+        ASSEMBLY_DIR + "{sample}/log"
+    shell:
+        "megahit -1 {input.r1} -2 {input.r2} -o {output} &> {log}"
+
+rule bin:
+    input:
+    output:
+    env:
+    log:
+    shell: 

@@ -1,0 +1,10 @@
+# config file for assembly snakemake workflow
+
+# input paths
+bbmap_dir: /usr/data/archanand/lwang/snakemake/qc/results/nmdc_downloads/bbmap/
+
+# output paths 
+assembly_dir: 
+
+# envs
+megahit_env: 

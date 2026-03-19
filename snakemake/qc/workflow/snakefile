@@ -40,12 +40,15 @@ rule fastp:
     conda:
         QC_ENV
     params:
-        q: fastp_q,
-        u: fastp_u
+        q = fastp_q,
+        u = fastp_u
+    threads: 2
+    resources:
+        mem_mb = 5000
     log:
         FASTP_DIR + "{sample}_fastp.log"
     shell:
-        "fastp -i {input.i} -I {input.I} -o {output.o} -O {output.O} -q {params.q} -u {params.u} --trim_poly_g &> {log}"
+        "fastp -i {input.i} -I {input.I} -o {output.o} -O {output.O} -q {params.q} -u {params.u} --thread {threads} --trim_poly_g &> {log}"
 
 rule bbmap: 
     input:
@@ -58,10 +61,13 @@ rule bbmap:
         BBMAP_ENV
     params:
         host = HOST_GENOME
+    threads: 4
+    resources:
+        mem_mb = 23000
     log:
         BBMAP_DIR + "{sample}.bbmap.log"
     shell: 
-        "bbmap.sh in1={input.in1} in2={input.in2} outu1={output.outu1} outu2={output.outu2} path={params.host} &> {log}"
+        "bbmap.sh in1={input.in1} in2={input.in2} outu1={output.outu1} outu2={output.outu2} path={params.host} threads={threads} &> {log}"
 
 rule fastqc:
     input: 
@@ -74,10 +80,13 @@ rule fastqc:
         out4 = FASTQC_DIR + "{sample}_R2_001.fastp.bbmap_fastqc.zip"
     conda: 
         QC_ENV
+    threads: 1
+    resources:
+        mem_mb = 2000
     log: 
         FASTQC_DIR + "{sample}_fastqc.log"  # one log is fine, fastqc will write both reports to this log
     shell: 
-        "fastqc {input.r1} {input.r2} -o " + FASTQC_DIR + " &> {log}"
+        "fastqc {input.r1} {input.r2} -o " + FASTQC_DIR + " --threads {threads} &> {log}"
 
 rule multiqc:
     input:
@@ -87,6 +96,9 @@ rule multiqc:
         FASTQC_DIR + "multiqc_report.html"
     conda: 
         QC_ENV
+    threads: 1 
+    resources:
+        mem_mb = 2000
     log:
         FASTQC_DIR + "multiqc.log" 
     shell:

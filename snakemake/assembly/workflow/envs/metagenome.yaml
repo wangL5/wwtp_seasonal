@@ -1,0 +1,5 @@
+name: metagenome
+channels:
+  - bioconda
+dependencies:
+  - megahit

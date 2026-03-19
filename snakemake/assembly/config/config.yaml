@@ -4,7 +4,6 @@
 bbmap_dir: /usr/data/archanand/lwang/snakemake/qc/results/nmdc_downloads/bbmap/
 
 # output paths 
-assembly_dir: 
+assembly_dir: /usr/data/archanand/lwang/snakemake/megahit/results/nmdc_assembly/
 
-# envs
-megahit_env: 
+

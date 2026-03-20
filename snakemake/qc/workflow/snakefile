@@ -17,6 +17,10 @@ FASTP_DIR = config["fastp_dir"]
 BBMAP_DIR = config["bbmap_dir"]
 FASTQC_DIR = config["fastqc_dir"]
 
+# skip bbmap? 
+SUFFIX = "fastp" if config.get("skip_bbmap", False) else "fastp.bbmap"
+INPUT_FOR_FASTQC = FASTP_DIR if config.get("skip_bbmap", False) else BBMAP_DIR
+
 # fastp parameters 
 fastp_q = config["fastp_q"]
 fastp_u = config["fastp_u"]
@@ -71,13 +75,13 @@ rule bbmap:
 
 rule fastqc:
     input: 
-        r1 = BBMAP_DIR + "{sample}_R1_001.fastp.bbmap.fastq.gz",
-        r2 = BBMAP_DIR + "{sample}_R2_001.fastp.bbmap.fastq.gz"
+        r1 = INPUT_FOR_FASTQC + "{sample}_R1_001." + SUFFIX + ".fastq.gz",
+        r2 = INPUT_FOR_FASTQC + "{sample}_R2_001." + SUFFIX + ".fastq.gz"
     output: 
-        out1 = FASTQC_DIR + "{sample}_R1_001.fastp.bbmap_fastqc.html", 
-        out2 = FASTQC_DIR + "{sample}_R1_001.fastp.bbmap_fastqc.zip",
-        out3 = FASTQC_DIR + "{sample}_R2_001.fastp.bbmap_fastqc.html", 
-        out4 = FASTQC_DIR + "{sample}_R2_001.fastp.bbmap_fastqc.zip"
+        out1 = FASTQC_DIR + "{sample}_R1_001." + SUFFIX + "_fastqc.html", 
+        out2 = FASTQC_DIR + "{sample}_R1_001." + SUFFIX + "_fastqc.zip",
+        out3 = FASTQC_DIR + "{sample}_R2_001." + SUFFIX + "_fastqc.html", 
+        out4 = FASTQC_DIR + "{sample}_R2_001." + SUFFIX + "_fastqc.zip"
     conda: 
         QC_ENV
     threads: 1
@@ -90,8 +94,8 @@ rule fastqc:
 
 rule multiqc:
     input:
-        expand(FASTQC_DIR + "{sample}_R1_001.fastp.bbmap_fastqc.zip", sample=SAMPLES), 
-        expand(FASTQC_DIR + "{sample}_R2_001.fastp.bbmap_fastqc.zip", sample=SAMPLES)
+        expand(FASTQC_DIR + "{sample}_R1_001." + SUFFIX + "_fastqc.zip", sample=SAMPLES), 
+        expand(FASTQC_DIR + "{sample}_R2_001." + SUFFIX + "_fastqc.zip", sample=SAMPLES)
     output:
         FASTQC_DIR + "multiqc_report.html"
     conda: 

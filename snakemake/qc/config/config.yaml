@@ -10,3 +10,7 @@ fastqc_dir: /usr/data/archanand/lwang/snakemake/qc/results/nmdc_downloads/fastqc
 # fastp parameters 
 fastp_q: 20 
 fastp_u: 20
+
+# skip bbmap flag 
+# use when you don't need to remove host reads 
+skip_bbmap: True 

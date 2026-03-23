@@ -12,16 +12,27 @@ ASSEMBLY_DIR = config["assembly_dir"]
 # envs
 MEGAHIT_ENV = "envs/metagenome.yaml"
 
+# wildcards + expand
+sample_names = glob_wildcards(BBMAP_DIR + "{sample}_R1_001.fastp.bbmap.fastq.gz")
+SAMPLES = sample_names.sample
+
+rule all: 
+    input: 
+        expand(ASSEMBLY_DIR + "{sample}/final.contigs.fa", sample=SAMPLES)
+
 rule megahit: 
     input: 
         r1 = BBMAP_DIR + "{sample}_R1_001.fastp.bbmap.fastq.gz",
         r2 = BBMAP_DIR + "{sample}_R2_001.fastp.bbmap.fastq.gz"
     output: 
-        dir = ASSEMBLY_DIR 
         fa = ASSEMBLY_DIR + "{sample}/final.contigs.fa"
-    env:
+    params:
+        outdir = ASSEMBLY_DIR + "{sample}"
+    conda: 
         MEGAHIT_ENV
     log: 
         ASSEMBLY_DIR + "{sample}/log"
+    resources: 
+        mem_mb = 60000
     shell:
-        "megahit -1 {input.r1} -2 {input.r2} -o {output.dir} &> {log}"
+        "megahit -1 {input.r1} -2 {input.r2} -o {params.outdir} &> {log}"

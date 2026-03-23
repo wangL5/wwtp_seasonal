@@ -32,7 +32,9 @@ rule megahit:
         MEGAHIT_ENV
     log: 
         ASSEMBLY_DIR + "{sample}/log"
+    threads:
+        4
     resources: 
         mem_mb = 60000
     shell:
-        "megahit -1 {input.r1} -2 {input.r2} -o {params.outdir} &> {log}"
+        "megahit -1 {input.r1} -2 {input.r2} -o {params.outdir} -t {threads} --force &> {log}"

@@ -26,8 +26,8 @@ fastp_q = config["fastp_q"]
 fastp_u = config["fastp_u"]
 # trim-poly-g tail is on 
 
-wildcards = glob_wildcards(INPUT_DIR + "{sample}_R1_001.fastq.gz")
-SAMPLES = wildcards.sample
+wc = glob_wildcards(INPUT_DIR + "{sample}_R1.fastq.gz")
+SAMPLES = wc.sample
 
 
 rule all:
@@ -36,11 +36,11 @@ rule all:
 
 rule fastp: 
     input:
-        i = INPUT_DIR + "{sample}_R1_001.fastq.gz",
-        I = INPUT_DIR + "{sample}_R2_001.fastq.gz"
+        i = INPUT_DIR + "{sample}_R1.fastq.gz",
+        I = INPUT_DIR + "{sample}_R2.fastq.gz"
     output:
-        o = FASTP_DIR + "{sample}_R1_001.fastp.fastq.gz",
-        O = FASTP_DIR + "{sample}_R2_001.fastp.fastq.gz"
+        o = FASTP_DIR + "{sample}_R1.fastp.fastq.gz",
+        O = FASTP_DIR + "{sample}_R2.fastp.fastq.gz"
     conda:
         QC_ENV
     params:
@@ -56,11 +56,11 @@ rule fastp:
 
 rule bbmap: 
     input:
-        in1 = FASTP_DIR + "{sample}_R1_001.fastp.fastq.gz",
-        in2 = FASTP_DIR + "{sample}_R2_001.fastp.fastq.gz"
+        in1 = FASTP_DIR + "{sample}_R1.fastp.fastq.gz",
+        in2 = FASTP_DIR + "{sample}_R2.fastp.fastq.gz"
     output:
-        outu1 = BBMAP_DIR + "{sample}_R1_001.fastp.bbmap.fastq.gz",
-        outu2 = BBMAP_DIR + "{sample}_R2_001.fastp.bbmap.fastq.gz"
+        outu1 = BBMAP_DIR + "{sample}_R1.fastp.bbmap.fastq.gz",
+        outu2 = BBMAP_DIR + "{sample}_R2.fastp.bbmap.fastq.gz"
     conda:
         BBMAP_ENV
     params:
@@ -71,17 +71,17 @@ rule bbmap:
     log:
         BBMAP_DIR + "{sample}.bbmap.log"
     shell: 
-        "bbmap.sh in1={input.in1} in2={input.in2} outu1={output.outu1} outu2={output.outu2} path={params.host} threads={threads} &> {log}"
+        "bbmap.sh in1={input.in1} in2={input.in2} outu1={output.outu1} outu2={output.outu2} path={params.host} threads={threads} -Xmx{resources_mem_mb}x &> {log}"
 
 rule fastqc:
     input: 
-        r1 = INPUT_FOR_FASTQC + "{sample}_R1_001." + SUFFIX + ".fastq.gz",
-        r2 = INPUT_FOR_FASTQC + "{sample}_R2_001." + SUFFIX + ".fastq.gz"
+        r1 = INPUT_FOR_FASTQC + "{sample}_R1." + SUFFIX + ".fastq.gz",
+        r2 = INPUT_FOR_FASTQC + "{sample}_R2." + SUFFIX + ".fastq.gz"
     output: 
-        out1 = FASTQC_DIR + "{sample}_R1_001." + SUFFIX + "_fastqc.html", 
-        out2 = FASTQC_DIR + "{sample}_R1_001." + SUFFIX + "_fastqc.zip",
-        out3 = FASTQC_DIR + "{sample}_R2_001." + SUFFIX + "_fastqc.html", 
-        out4 = FASTQC_DIR + "{sample}_R2_001." + SUFFIX + "_fastqc.zip"
+        out1 = FASTQC_DIR + "{sample}_R1." + SUFFIX + "_fastqc.html", 
+        out2 = FASTQC_DIR + "{sample}_R1." + SUFFIX + "_fastqc.zip",
+        out3 = FASTQC_DIR + "{sample}_R2." + SUFFIX + "_fastqc.html", 
+        out4 = FASTQC_DIR + "{sample}_R2." + SUFFIX + "_fastqc.zip"
     conda: 
         QC_ENV
     threads: 1
@@ -94,8 +94,8 @@ rule fastqc:
 
 rule multiqc:
     input:
-        expand(FASTQC_DIR + "{sample}_R1_001." + SUFFIX + "_fastqc.zip", sample=SAMPLES), 
-        expand(FASTQC_DIR + "{sample}_R2_001." + SUFFIX + "_fastqc.zip", sample=SAMPLES)
+        expand(FASTQC_DIR + "{sample}_R1." + SUFFIX + "_fastqc.zip", sample=SAMPLES), 
+        expand(FASTQC_DIR + "{sample}_R2." + SUFFIX + "_fastqc.zip", sample=SAMPLES)
     output:
         FASTQC_DIR + "multiqc_report.html"
     conda: 

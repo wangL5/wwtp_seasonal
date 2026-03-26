@@ -1,0 +1,41 @@
+# snakefile for genomad, may add other relevant analyses for MGEs in future
+
+configfile: "/usr/data/archanand/lwang/ww_seasonality_metagenomes/genomad/config/config.yaml"
+
+# config variables
+INPUT_DIR = config["sample_dir"]
+GENOMAD_DB = config["genomad_db"]
+OUTPUT_DIR = config["results_dir"]
+
+# envs
+GENOMAD_ENV = "envs/genomad.yaml"
+
+# wildcards + expand
+sample_names = glob_wildcards(INPUT_DIR + "{sample}/final.contigs.fa")
+SAMPLES = sample_names.sample
+
+rule all:
+    input: 
+        expand(OUTPUT_DIR + "{sample}/.done", sample=SAMPLES)
+
+rule genomad:
+    input:
+        INPUT_DIR + "{sample}/final.contigs.fa"
+    output:
+        OUTPUT_DIR + "{sample}/.done"
+    log:
+        OUTPUT_DIR + "logs/{sample}.log"
+    conda:
+        GENOMAD_ENV
+    params:
+        db = GENOMAD_DB,
+        output_dir = OUTPUT_DIR + "{sample}"
+    benchmark:
+        OUTPUT_DIR + "benchmark/{sample}"
+    resources:
+        mem_mb = 30000
+    shell:
+        '''
+        genomad end-to-end --cleanup --splits 8 {input} {params.output_dir} {params.db}
+        touch {output}
+        '''

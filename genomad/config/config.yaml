@@ -1,0 +1,8 @@
+# config file for genomad snakefile
+
+# input
+sample_dir: "/usr/data/archanand/lwang/ww_seasonality_metagenomes/nmdc_assembly"
+genomad_db: "/usr/data/archanand/tools/genomad_db/"
+
+# output
+results_dir: "/usr/data/archanand/lwang/ww_seasonality_metagenomes/genomad/results/"

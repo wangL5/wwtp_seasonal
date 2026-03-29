@@ -1,14 +1,13 @@
-# snakefile for genomad, may add other relevant analyses for MGEs in future
+# snakefile for CARD RGI 
 
-configfile: "/usr/data/archanand/lwang/ww_seasonality_metagenomes/genomad/config/config.yaml"
+configfile: "/usr/data/archanand/lwang/ww_seasonality_metagenomes/card/config/config.yaml"
 
 # config variables
 INPUT_DIR = config["sample_dir"]
-GENOMAD_DB = config["genomad_db"]
 OUTPUT_DIR = config["results_dir"]
 
 # envs
-GENOMAD_ENV = "envs/genomad.yaml"
+RGI_ENV = "envs/rgi.yaml"
 
 # wildcards + expand
 sample_names = glob_wildcards(INPUT_DIR + "{sample}/final.contigs.fa")
@@ -18,7 +17,7 @@ rule all:
     input: 
         expand(OUTPUT_DIR + "{sample}/.done", sample=SAMPLES)
 
-rule genomad:
+rule rgi:
     input:
         INPUT_DIR + "{sample}/final.contigs.fa"
     output:
@@ -26,17 +25,20 @@ rule genomad:
     log:
         OUTPUT_DIR + "logs/{sample}.log"
     conda:
-        GENOMAD_ENV
+        RGI_ENV
     params:
-        db = GENOMAD_DB,
-        output_dir = OUTPUT_DIR + "{sample}"
+        output_dir = OUTPUT_DIR + "{sample}",
+        t = "contig",  # contig or protein
+        a = "BLAST", # BLAST or DIAMOND, default = BLAST
+    threads: 2
     benchmark:
         OUTPUT_DIR + "benchmark/{sample}"
     resources:
-        mem_mb = 30000
+        mem_mb = 45000
     shell:
         '''
-        set -e
-        genomad end-to-end --cleanup --splits 8 {input} {params.output_dir} {params.db}
+        set -euo pipefail
+        rgi main -i {input} -o {params.output_dir} -t {params.t} \
+        -a {params.a} --clean --low_quality -n {threads} 2>&1 | tee {log}
         touch {output}
         '''

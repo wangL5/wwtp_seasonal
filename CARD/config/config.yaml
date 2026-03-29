@@ -1,0 +1,7 @@
+# config for card RGI snakemake
+
+# input
+sample_dir: "/home/910904506/lwang/ww_seasonality_metagenomes/nmdc_assembly/"
+
+# output
+results_dir: "/home/910904506/lwang/ww_seasonality_metagenomes/card/results"

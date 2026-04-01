@@ -1,0 +1,7 @@
+# config file for bowtie2 snakemake 
+
+assemblies_dir: "/home/910904506/lwang/ww_seasonality_metagenomes/nmdc_assembly"
+reads_dir: "/home/910904506/lwang/ww_seasonality_metagenomes/nmdc_downloads"
+
+index_dir: "/usr/data/archanand/lwang/ww_seasonality_metagenomes/read_mapping/results/index"
+sam_dir: "/usr/data/archanand/lwang/ww_seasonality_metagenomes/read_mapping/results/sam"

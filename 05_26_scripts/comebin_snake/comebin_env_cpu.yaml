@@ -1,0 +1,5 @@
+name: comebin_env_cpu
+channels:
+  - bioconda
+dependencies:
+  - comebin

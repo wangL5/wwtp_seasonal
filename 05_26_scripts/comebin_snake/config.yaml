@@ -1,0 +1,10 @@
+# config for comebin snakemake
+
+# input
+assembly_dir: "/Users/910904506/wwtp_seasons_assembly/nmdc_assembly/" 
+
+# output:
+results_dir: "/Users/910904506/wwtp_seasons_assembly/comebin/results/"
+
+# bam directories
+bam_dir: "/Users/910904506/wwtp_seasons_assembly/comebin/"

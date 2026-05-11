@@ -1,0 +1,9 @@
+snakemake \
+  --executor slurm \
+  --jobs 2 \
+  --use-conda \
+  --default-resources \
+    slurm_partition=highmem \
+    slurm_account=researchers \
+  --latency-wait 60 \
+  --verbose

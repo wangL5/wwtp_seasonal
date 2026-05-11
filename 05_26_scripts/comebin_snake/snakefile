@@ -1,0 +1,47 @@
+# snakefile for comebin single sample binning
+
+configfile: "/Users/910904506/wwtp_seasons_assembly/comebin/config/config.yaml"
+
+# input path
+INPUT_DIR = config["assembly_dir"]
+
+# output path 
+OUTPUT_DIR = config["results_dir"]
+
+# bam dir path
+BAM_DIR = config["bam_dir"]
+
+# envs
+COMEBIN_ENV = "envs/comebin_env_cpu.yaml"
+
+# wildcards + expand
+sample_names = glob_wildcards(INPUT_DIR + "{sample}/final.contigs_1000.fa")
+SAMPLES = sample_names.sample
+
+rule all:
+    input:
+        expand(OUTPUT_DIR + "{sample}/.done", sample=SAMPLES)
+
+rule comebin:  
+    input: 
+        a = INPUT_DIR + "{sample}/final.contigs_1000.fa",
+        p = BAM_DIR + "{sample}_bam"
+    output: 
+        OUTPUT_DIR + "{sample}/.done"
+    params:
+        bins_dir = OUTPUT_DIR + "{sample}"
+    conda: 
+        COMEBIN_ENV
+    benchmark:
+        OUTPUT_DIR + "benchmark/{sample}.benchmark"
+    log: 
+        OUTPUT_DIR + "logs/{sample}.log"
+    threads:
+        20
+    resources: 
+        mem_mb = 350000
+    shell:
+        '''
+        bash run_comebin.sh -a {input.a} -o {params.bins_dir} -p {input.p} -t {threads} &> {log}
+        touch {output}
+        '''

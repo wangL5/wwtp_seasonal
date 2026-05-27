@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# activate conda environment
+eval "$(conda shell.bash hook)"
+conda activate mvip
+
+WORK_DIR="/Users/910904506/wwtp_seasons_assembly/mvp"
+METADATA="/Users/910904506/wwtp_seasons_assembly/mvp/wwtp_metadata.txt"
+
+mvip MVP_05_create_vOTU_table -i $WORK_DIR -m $METADATA
+
+echo "All done!"
